@@ -16,7 +16,7 @@
 #include <QList>
 #include <QMap>
 #include <QPointer>
-
+#include <QVector>
 #include <QDateTime>
 #define DEFAULT     '5'
 #define MANUAL      '1'
@@ -24,7 +24,7 @@
 #define AUTOMATICO  '3'
 #define TEMPERATURA 't'
 #define HUMEDAD     'h'
-#define SENSOR1     'W'
+#define RECIBIDO     'W'
 #define SENSOR2     'Y'
 #define SENSOR3     'Z'
 #define RTC         'C'
@@ -33,6 +33,15 @@
 #define MODOTEMPORIZADO 'T'
 #define CONFIGURACION   'C'
 #define BOTONOK         'O'
+
+#define MENSAJE_LLUVIA_ON	'L'
+#define	MENSAJE_LLUVIA_OFF	'l'
+
+#define LLUVIA_ON   100
+#define LLUVIA_OFF  -1
+
+#define TIEMPOPLOT   1000  //Tiempo de refresco del grafico
+#define TIMEOUTSERIE 4000 //Tiempo de timeout del tiempo serie en ms
 //
 extern QByteArray f;
 extern bool confiPorSoft;
@@ -53,8 +62,10 @@ private:
 
      QSerialPort *puerto;
 
-     QTime time ;
-     QTimer *timer;
+     double Temperatura_y, Humedad_y, m_Lluvia;
+
+     QTime time;
+     QTimer *timer, *timer_plot, *timerTimeOutSerie;
      QString time_text;
      QLabel *m_status_bytes_recibidos;
      int m_cant_bytes_recibidos;
@@ -69,12 +80,18 @@ private:
      void prenderEstado();
      void apagarEstado();
      void activarModoManual();
-     void activarTemporal();
-     void activarAutomatico();
+     void activarModoTemporizado();
+     void activarModoAutomatico();
      void estadoInicial();
      void ejecutarTimer();
      void iniciarGrafico();
      void enviarRTC();
+     void PrepararGrafico();
+     void PrepararTimeOutSerie();
+     void PrenderLluvia();
+     void ApagarLluvia();
+     void DesconectarLluvia();
+
 public:
     enum ColorRGB
     {
@@ -173,7 +190,7 @@ public:
     QQueue<int> m_teclas_cola;
     QByteArray m_datos_recibidos;
 
-    void ProcesarComandos();
+    void Parceo();
     void ProcesarComando(QString comando);
     void TitilarTeclado(int idx, int corto = true);
     void TitilarTeclas(int idx, int corto = true);
@@ -194,8 +211,14 @@ private slots:
 
     void on_button_tecla_2_clicked();
 
+    void CerrarPuertoSerie( void );
+
+    void realtimePlot(void);
+
 private:
     Ui::MainWindow *ui;
+signals:
+
 };
 
 #endif // MAINWINDOW_H

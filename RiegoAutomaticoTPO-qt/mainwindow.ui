@@ -51,11 +51,17 @@
           <height>191</height>
          </rect>
         </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
         <property name="styleSheet">
          <string notr="true">color:rgb(0, 158, 0);</string>
         </property>
         <property name="title">
-         <string>Estado Actual</string>
+         <string>Selector</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
@@ -116,7 +122,7 @@
           </rect>
          </property>
          <property name="intValue" stdset="0">
-          <number>123</number>
+          <number>-1</number>
          </property>
         </widget>
         <widget class="QLabel" name="label_4">
@@ -208,7 +214,7 @@
           <string>Enviar Hora</string>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdHumedadActual">
+        <widget class="QLCDNumber" name="lcdTemperatura">
          <property name="geometry">
           <rect>
            <x>50</x>
@@ -221,7 +227,7 @@
           <bool>false</bool>
          </property>
          <property name="intValue" stdset="0">
-          <number>123</number>
+          <number>-1</number>
          </property>
         </widget>
         <widget class="QLabel" name="label_9">
@@ -295,7 +301,7 @@
          <string notr="true">color:rgb(0, 158, 0);</string>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -325,28 +331,12 @@
             <x>0</x>
             <y>0</y>
             <width>751</width>
-            <height>281</height>
+            <height>331</height>
            </rect>
           </property>
           <property name="styleSheet">
            <string notr="true">background-color: black; color: green
 ;</string>
-          </property>
-         </widget>
-         <widget class="QPlainTextEdit" name="texto_log">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>300</y>
-            <width>751</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::TabFocus</enum>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
           </property>
          </widget>
         </widget>
@@ -494,7 +484,7 @@
          <string notr="true">color:rgb(0, 158, 0);</string>
         </property>
         <property name="text">
-         <string>Enviar Configuraacion</string>
+         <string>Enviar Configuracion</string>
         </property>
        </widget>
        <widget class="QGroupBox" name="groupBoxConfiguracion">
@@ -617,7 +607,7 @@
           <x>0</x>
           <y>20</y>
           <width>181</width>
-          <height>111</height>
+          <height>141</height>
          </rect>
         </property>
         <property name="title">
@@ -627,16 +617,19 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>70</y>
+           <y>60</y>
            <width>160</width>
            <height>31</height>
           </rect>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QLabel" name="label_2">
+           <widget class="QLabel" name="label_Riego">
             <property name="text">
-             <string>Estado  :</string>
+             <string>Riego:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -644,6 +637,9 @@
            <widget class="QLabel" name="labelEstadoActual">
             <property name="text">
              <string>NA</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -662,7 +658,10 @@
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Modo   :</string>
+             <string>Modo:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -671,10 +670,63 @@
             <property name="text">
              <string>NA</string>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
            </widget>
           </item>
          </layout>
         </widget>
+        <widget class="QWidget" name="horizontalLayoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>100</y>
+           <width>160</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_LLuvia">
+          <item>
+           <widget class="QLabel" name="label_Lluvia">
+            <property name="text">
+             <string>Lluvia:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_ELluvia">
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>NA</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_Graficos">
+       <attribute name="title">
+        <string>Graficos</string>
+       </attribute>
+       <widget class="QCustomPlot" name="customPlot" native="true">
+        <property name="geometry">
+         <rect>
+          <x>-1</x>
+          <y>-1</y>
+          <width>1201</width>
+          <height>651</height>
+         </rect>
+        </property>
        </widget>
       </widget>
      </widget>
@@ -684,6 +736,14 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

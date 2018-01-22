@@ -20,14 +20,20 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
 		mainwindow.cpp \
-    configkit.cpp
+    configkit.cpp \
+    qcustomplot.cpp
 
 HEADERS  += mainwindow.h \	
-    configkit.h
+    configkit.h \
+    qcustomplot.h
 
 FORMS    += mainwindow.ui \
     configkit.ui
 
 OTHER_FILES += \
 	QtInfotronic.pr
+
+DISTFILES += \
+    gota.png \
+    termometro.png
 
