@@ -4,6 +4,7 @@
 
 #include <QMessageBox>
 #include <QDebug>
+#include <QSettings>
 
 #include <QTimer>
 #include <QPixmap>
@@ -94,14 +95,7 @@ void MainWindow::configActive()
 */
 void::MainWindow:: estadoInicial()
 {
-    EstadoGeneral=0;
-    cantAutomatico=0;
-    cantManual=0;
-    cantTemporizado=0;
-    confiPorSf=false;
-    estadoAutomatico=false;
-    estadoManual=false;
-    estadoTemporal=false;
+	confiPorSf=false;
     m_status_bytes_recibidos = new QLabel(this);
     ui->statusBar->addWidget(m_status_bytes_recibidos);
 }
@@ -254,18 +248,6 @@ void MainWindow::EnviarComando(QString comando)
     m_cant_bytes_enviados += send.size();
 }
 /**
-    \fn  InvertirLedRelay
-    \brief Descripcion
-    \param [in] parametros de entrada
-    \param [out] parametros de salida
-    \return tipo y descripcion de retorno
-*/
-void MainWindow::InvertirLedRelay(int idx)
-{
-    m_estado_general.leds_relays[idx] = !m_estado_general.leds_relays[idx];
-    EnviarComando("3" + QString::number(idx));
-}
-/**
     \fn  FijarAnchoString
     \brief Le da un tamaño determinado a la string
     \param [in] QString str: string a fijar
@@ -321,13 +303,13 @@ void MainWindow::onDatosRecibidos()
 
     UpdateBytesTotales();
 
-    Parceo();
+	Parseo();
 }
 /**
     \fn  Parceo
     \brief Parsea los datos recibidos del puerto serie
 */
-void MainWindow::Parceo()
+void MainWindow::Parseo()
 {
     QString comando="";
     QString depurado = "ATMCOIERWLliohHt#$0123456789";
@@ -415,18 +397,6 @@ void MainWindow::ProcesarComando(QString comando)
             //ui->listErrores->setCurrentRow(ui->listErrores->count()-1);
             break;
 
-        case BOTONOK:
-            if(EstadoGeneral)
-            {
-                ui->labelEstadoActual->setText("Prendido");
-                EstadoGeneral=0;
-            }
-            else
-            {
-              ui->labelEstadoActual->setText("Apagado");
-              EstadoGeneral=1;
-            }
-
         case 'o':
             ui->labelEstadoActual->setText("Apagado");
             ui->labelEstadoActual->setStyleSheet("QLabel { font-weight: bold; color : red; }");
@@ -473,39 +443,6 @@ void MainWindow::ProcesarComando(QString comando)
 void MainWindow::UpdateBytesTotales()
 {
     m_status_bytes_recibidos->setText(QString::number(m_cant_bytes_recibidos) + " bytes recibidos, " + QString::number(m_cant_bytes_enviados) + " byte enviados.");
-}
-/**
-    \fn  activarModoManual
-    \brief Envia el comando correspondiente al modo manual y cambia el estado
-*/
-void MainWindow:: activarModoManual()
-{
-     QString enviar;
-     enviar+="M";
-     EnviarComando(enviar);
-     EstadoGeneral=MANUAL;
-}
-/**
-    \fn  activarModoAutomatico
-    \brief Envia el comando correspondiente al modo automatico y cambia el estado
-*/
-void MainWindow:: activarModoAutomatico()
-{
-    QString enviar;
-    enviar+="A";
-    EnviarComando(enviar);
-    EstadoGeneral=AUTOMATICO;
-}
-/**
-    \fn  activarModoTemporizado
-    \brief Envia el comando correspondiente al modo temporizado y cambia el estado
-*/
-void MainWindow:: activarModoTemporizado()
-{
-    QString enviar;
-    enviar+="T";
-    EnviarComando(enviar);
-    EstadoGeneral=TEMPORIZADO;
 }
 /**
     \fn  EnumerarPuertos
@@ -625,32 +562,6 @@ void MainWindow::on_pushButtonAutomatico_clicked()
         NoConectadoError();
 
     UpdateBytesTotales();
-}
-/**
-    \fn  prenderEstado
-    \brief Descripcion
-    \param [in] parametros de entrada
-    \param [out] parametros de salida
-    \return tipo y descripcion de retorno
-*/
-void::MainWindow::prenderEstado()
-{
-     QString enviar;
-     enviar+="I";
-     EnviarComando(enviar);
-}
-/**
-    \fn  apagarEstado
-    \brief Descripcion
-    \param [in] parametros de entrada
-    \param [out] parametros de salida
-    \return tipo y descripcion de retorno
-*/
-void::MainWindow::apagarEstado()
-{
-    QString enviar;
-    enviar+="O";
-    EnviarComando(enviar);
 }
 /**
     \fn  on_pushButtonOk_clicked

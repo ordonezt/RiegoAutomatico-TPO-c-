@@ -5,6 +5,7 @@
 #include <QCloseEvent>
 #include  "mainwindow.h"
 #include <QSerialPort>
+
 namespace Ui {
 class ConfigKit;
 }
