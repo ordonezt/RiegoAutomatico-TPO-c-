@@ -21,11 +21,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
 		mainwindow.cpp \
     configkit.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    puertoserie.cpp
 
 HEADERS  += mainwindow.h \	
     configkit.h \
-    qcustomplot.h
+    qcustomplot.h \
+    puertoserie.h
 
 FORMS    += mainwindow.ui \
     configkit.ui

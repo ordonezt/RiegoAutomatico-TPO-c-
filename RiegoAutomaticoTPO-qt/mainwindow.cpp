@@ -4,7 +4,6 @@
 
 #include <QMessageBox>
 #include <QDebug>
-#include <QSettings>
 
 #include <QTimer>
 #include <QPixmap>
@@ -96,8 +95,8 @@ void MainWindow::configActive()
 void::MainWindow:: estadoInicial()
 {
 	confiPorSf=false;
-    m_status_bytes_recibidos = new QLabel(this);
-    ui->statusBar->addWidget(m_status_bytes_recibidos);
+	m_status_bytes_recibidos = new QLabel(this);
+	ui->statusBar->addWidget(m_status_bytes_recibidos);
 }
 /**
     \fn  mostrarMarcador
@@ -132,7 +131,7 @@ void MainWindow::mostrarMarcador()
 void MainWindow::mostrarReloj()
 {
    time = QTime::currentTime();
-   time_text = time.toString("hh : mm : ss");
+	 time_text = time.toString("hh:mm:ss");
    ui->Hora->setText(time_text);
 
    if(Conectado())
@@ -217,7 +216,7 @@ void MainWindow::ActualizarEstadoConexion()
 */
 void MainWindow::EnviarComando(QString comando)
 {
-    QByteArray send = ("#"+comando + "$").toLatin1();
+		QByteArray send = ("#"+ comando + "$").toLatin1();
     puerto->write(send);
 
     QTime time = QTime::currentTime();
@@ -226,27 +225,28 @@ void MainWindow::EnviarComando(QString comando)
     switch( comando[0].unicode() )
     {
         case 'M':
-            ui->listEnvio->addItem(QString("Se envio el comando Manual a las ") + time_text + "hs.");
+						ui->listEnviado->addItem(QString("Se envio el comando Manual a las ") + time_text + "hs.");
             break;
         case 'T':
-            ui->listEnvio->addItem(QString("Se envio el comando Temporizado a las ") + time_text + "hs.");
+						ui->listEnviado->addItem(QString("Se envio el comando Temporizado a las ") + time_text + "hs.");
             break;
         case 'A':
-            ui->listEnvio->addItem(QString("Se envio el comando Automatico a las ") + time_text + "hs.");
+						ui->listEnviado->addItem(QString("Se envio el comando Automatico a las ") + time_text + "hs.");
             break;
         case 'O':
-            ui->listEnvio->addItem(QString("Se envio el comando Ok a las ") + time_text + "hs.");
+						ui->listEnviado->addItem(QString("Se envio el comando Ok a las ") + time_text + "hs.");
             break;
         case 'S':
-            ui->listEnvio->addItem(QString("Se envio el comando Status a las ") + time_text + "hs.");
+						ui->listEnviado->addItem(QString("Se envio el comando Status a las ") + time_text + "hs.");
             break;
         default:
             break;
     }
 
-    ui->listEnvio->setCurrentRow(ui->listEnvio->count()-1);
+		ui->listEnviado->setCurrentRow(ui->listEnviado->count()-1);
     m_cant_bytes_enviados += send.size();
 }
+
 /**
     \fn  FijarAnchoString
     \brief Le da un tamaño determinado a la string
@@ -266,176 +266,11 @@ QString FijarAnchoString(QString str, int tam)
 
     return str;
 }
-/**
-    \fn  Conectado
-    \brief Informa si el puerto esta conectado o desconectado
-*/
-bool MainWindow::Conectado()
-{
-    return puerto && puerto->isOpen();
 
-}
-/**
-    \fn  NoConectadoError
-    \brief Funcion que informa que el puerto no esta conectado
-*/
-void MainWindow::NoConectadoError()
-{
-    if (!m_init)
-        QMessageBox::warning(this, QString::fromUtf8("Error de conexión"), "Sin conexión");
-}
-/**
-    \fn  onDatosRecibidos
-    \brief Slot llamado con la señal readyRead cuando hay datos disponibles del puerto serie.
-*/
-void MainWindow::onDatosRecibidos()
-{
-    QByteArray bytes;
-    int cant = puerto->bytesAvailable();
-    bytes.resize(cant);
-    puerto->read(bytes.data(), bytes.size());
 
-    m_datos_recibidos += bytes;
 
-    qDebug() << "bytes recibidos:" << bytes;
 
-    m_cant_bytes_recibidos += cant;
 
-    UpdateBytesTotales();
-
-	Parseo();
-}
-/**
-    \fn  Parceo
-    \brief Parsea los datos recibidos del puerto serie
-*/
-void MainWindow::Parseo()
-{
-    QString comando="";
-    QString depurado = "ATMCOIERWLliohHt#$0123456789";
-
-    for (int i = 0; i < m_datos_recibidos.count(); i++)
-    {
-        unsigned char dato = m_datos_recibidos[i];
-
-        switch (dato)
-        {
-
-            case '$':
-                if (comando != "")
-                {
-                    qDebug() << "Trama interpretada";
-                    ProcesarComando(comando);
-                    comando = "";
-
-                    //Reset del timer de timeout
-                    timerTimeOutSerie->start();
-                }
-                break;
-
-            default:
-            if(depurado.contains(dato))
-                    comando += dato;
-                break;
-        }
-    }
-
-    m_datos_recibidos = comando.toLatin1();
-}
-/**
-    \fn  ProcesarComando
-    \brief Procesa el comando recibido
-*/
-void MainWindow::ProcesarComando(QString comando)
-{
-    QTime time = QTime::currentTime();
-    QString time_text = time.toString("hh : mm : ss");
-
-    unsigned char base = comando[0].toLatin1();
-
-    if(base != '#'  )
-    {
-        //QMessageBox::warning(this, QString::fromUtf8("Error al comienzo de trama"), "No se respeta el protocolo");
-        return;
-    }
-
-    base = comando[1].toLatin1();
-
-    switch (base)
-    {
-        case TEMPERATURA:
-            Temperatura_y = comando.mid(2,-1).toFloat()/10;
-            ui->lcdTemperatura->setProperty("value", Temperatura_y);
-            break;
-
-        case HUMEDAD:
-            Humedad_y = (comando.mid(2,-1)).toInt();
-            ui->lcdHumedad->setProperty("value", Humedad_y);
-            break;
-
-        case MODOMANUAL:
-            ui->labelModoActual->setText("Manual");
-            ui->labelModoActual->setStyleSheet("QLabel { font-weight: bold; color : blue; }");
-
-            ui->listErrores->addItem( QString::fromUtf8("Se cambio al modo Manual a las ") + time_text + "hs." );
-            //ui->listErrores->setCurrentRow(ui->listErrores->count()-1);
-            break;
-
-        case MODOAUTOMATICO:
-            ui->labelModoActual->setText("Automatico");
-            ui->labelModoActual->setStyleSheet("QLabel { font-weight: bold; color : red; }");
-
-            ui->listErrores->addItem( QString::fromUtf8("Se cambio al modo Automatico a las ") + time_text + "hs." );
-            //ui->listErrores->setCurrentRow(ui->listErrores->count()-1);
-            break;
-
-        case MODOTEMPORIZADO:
-            ui->labelModoActual->setText("Temporizado");
-            ui->labelModoActual->setStyleSheet("QLabel { font-weight: bold; color : yellow; }");
-
-            ui->listErrores->addItem( QString::fromUtf8("Se cambio al modo Temporizado a las ") + time_text + "hs." );
-            //ui->listErrores->setCurrentRow(ui->listErrores->count()-1);
-            break;
-
-        case 'o':
-            ui->labelEstadoActual->setText("Apagado");
-            ui->labelEstadoActual->setStyleSheet("QLabel { font-weight: bold; color : red; }");
-
-            ui->listErrores->addItem( QString::fromUtf8("Se apago el riego a las ") + time_text + "hs." );
-            //ui->listErrores->setCurrentRow(ui->listErrores->count()-1);
-            break;
-
-        case 'i':
-            ui->labelEstadoActual->setText("Prendido");
-            ui->labelEstadoActual->setStyleSheet("QLabel { font-weight: bold; color : green; }");
-
-            ui->listErrores->addItem( QString::fromUtf8("Se encendio el riego a las ") + time_text + "hs." );
-            break;
-
-        case CONFIGURACION:
-            ui->labelModoActual->setText("Configuracion");
-            ui->labelModoActual->setStyleSheet("QLabel { font-weight: bold; color : green; }");
-            break;
-
-        case RECIBIDO:
-
-              break;
-
-        case MENSAJE_LLUVIA_ON:
-            PrenderLluvia();
-            break;
-
-        case MENSAJE_LLUVIA_OFF:
-            ApagarLluvia();
-            break;
-
-        default:
-            m_status_bytes_recibidos->setText("Comando no valido :"+base);
-            break;
-    }
-
-    ui->listErrores->setCurrentRow(ui->listErrores->count()-1);
-}
 /**
     \fn  UpdateBytesTotales
     \brief Muestra la cantidad de bytes enviados y recividos
@@ -501,30 +336,6 @@ void MainWindow::on_buttonConexion_clicked()
      ActualizarEstadoConexion();
 }
 /**
-    \fn  errorDeMensaje
-    \brief Descripcion
-    \param [in] parametros de entrada
-    \param [out] parametros de salida
-    \return tipo y descripcion de retorno
-*/
-void MainWindow::errorDeMensaje()
-{
-    if (!m_init)
-        QMessageBox::warning(this, QString::fromUtf8("Escribí un texto"), "Escribí un Comando válido");
-}
-/**
-    \fn  errorDeLongitudMensaje
-    \brief Descripcion
-    \param [in] parametros de entrada
-    \param [out] parametros de salida
-    \return tipo y descripcion de retorno
-*/
-void MainWindow::errorDeLongitudMensaje(QString  cant)
-{
-    if (!m_init)
-        QMessageBox::warning(this, QString::fromUtf8("Escribí un texto"), "No puede superar los "+cant+" caracteres");
-}
-/**
     \fn  on_pushButtonManual_clicked
     \brief slot que se encarga de cambiar el estado a manual
 */
@@ -563,6 +374,7 @@ void MainWindow::on_pushButtonAutomatico_clicked()
 
     UpdateBytesTotales();
 }
+
 /**
     \fn  on_pushButtonOk_clicked
     \brief slot que envia el comando Ok
@@ -605,7 +417,7 @@ void MainWindow::on_pushButtonEnviarConfiguracion_clicked()
             enviarConfig += ui->spinBoxHumMi->text();
 
         enviarConfig+=ui->timeEditTiempoRiego->text();
-        enviarConfig+=ui->timeEditHoraRie->text();
+				enviarConfig+=ui->timeEditHoraRiego->text();
         enviarConfig=("C"+enviarConfig);
         EnviarComando(enviarConfig);
     }

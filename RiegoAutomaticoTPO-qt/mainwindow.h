@@ -18,23 +18,23 @@
 #include <QPointer>
 #include <QVector>
 #include <QDateTime>
-#define DEFAULT     '5'
-#define MANUAL      '1'
-#define TEMPORIZADO '2'
-#define AUTOMATICO  '3'
-#define TEMPERATURA 't'
-#define HUMEDAD     'h'
-#define RECIBIDO     'W'
-#define SENSOR2     'Y'
-#define SENSOR3     'Z'
-#define RTC         'C'
-#define MODOMANUAL  'M'
-#define MODOAUTOMATICO  'A'
-#define MODOTEMPORIZADO 'T'
-#define CONFIGURACION   'C'
-#define BOTONOK         'O'
+#define DEFAULT					'5'
+#define MANUAL					'1'
+#define TEMPORIZADO			'2'
+#define AUTOMATICO			'3'
+#define TEMPERATURA			't'
+#define HUMEDAD					'h'
+#define RECIBIDO				'W'
+#define SENSOR2					'Y'
+#define SENSOR3					'Z'
+#define RTC							'C'
+#define MODOMANUAL			'M'
+#define MODOAUTOMATICO	'A'
+#define MODOTEMPORIZADO	'T'
+#define CONFIGURACION		'C'
+#define BOTONOK					'O'
 
-#define MENSAJE_LLUVIA_ON	'L'
+#define MENSAJE_LLUVIA_ON		'L'
 #define	MENSAJE_LLUVIA_OFF	'l'
 
 #define LLUVIA_ON   100
@@ -68,9 +68,10 @@ private:
      QTimer *timer, *timer_plot, *timerTimeOutSerie;
      QString time_text;
      QLabel *m_status_bytes_recibidos;
+		 QByteArray m_datos_recibidos;
      int m_cant_bytes_recibidos;
-	 int m_cant_bytes_enviados;
-	 int m_init;
+		 int m_cant_bytes_enviados;
+		 bool m_init;
      void estadoInicial();
      void ejecutarTimer();
      void iniciarGrafico();
@@ -82,33 +83,15 @@ private:
      void DesconectarLluvia();
 
 public:
-	void errorDeMensaje();
-    void errorDeLongitudMensaje(QString cant);
-    void EnumerarPuertos();
-    void ActualizarEstadoConexion();
+		void EnumerarPuertos();
+		void ActualizarEstadoConexion();
     void mostrarMarcador();
 
     void CerrarPuerto();
 
-    bool Conectado();
-    void NoConectadoError();
-    void UpdateBytesTotales();
-
-    void UpdateLedRelay(int idx);
-    void UpdateLedRelayEstado(QPushButton* relay, bool m_estado);
-    void InvertirLedRelay(int idx);
-
-	void EnviarComando(QString comando);
-
     void UpdateTabs();
 
-    void actualizarPlot();
-	void actualizarGraficos();
-    QByteArray m_datos_recibidos;
-
-	void Parseo();
-	void ProcesarComando(QString comando);
-
+		void actualizarPlot();
 
 private slots:
     void configActive();
