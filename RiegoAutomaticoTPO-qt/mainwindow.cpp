@@ -36,9 +36,8 @@ bool confiPorSoft;
      \brief Inicializa todo lo necesario para el funcionamiento del programa
  */
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    puerto(NULL), m_cant_bytes_recibidos(0),
-    m_cant_bytes_enviados(0), ui(new Ui::MainWindow)
+		QMainWindow(parent),
+		ui(new Ui::MainWindow)
 {
     m_init = true;
     ui->setupUi(this);
@@ -53,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     UpdateTabs();
     EnumerarPuertos();
     ActualizarEstadoConexion();
-    UpdateBytesTotales();
+		puerto.UpdateBytesTotales();
     m_init = false;
     Temperatura_y = 0;
     Humedad_y = 0;
@@ -95,8 +94,8 @@ void MainWindow::configActive()
 void::MainWindow:: estadoInicial()
 {
 	confiPorSf=false;
-	m_status_bytes_recibidos = new QLabel(this);
-	ui->statusBar->addWidget(m_status_bytes_recibidos);
+	bytesStatus = new QLabel(this);
+	ui->statusBar->addWidget(bytesStatus);
 }
 /**
     \fn  mostrarMarcador
@@ -134,7 +133,7 @@ void MainWindow::mostrarReloj()
 	 time_text = time.toString("hh:mm:ss");
    ui->Hora->setText(time_text);
 
-   if(Conectado())
+	 if(puerto.Conectado())
        if(confiPorSoft)
        {
            QMessageBox::warning(this, QString::fromUtf8("config"),f);
@@ -149,7 +148,7 @@ void MainWindow::enviarRTC()
 {
     QTime   time_aux = QTime::currentTime();
     QString  time_text_aux = time_aux.toString("hhmmss");
-    EnviarComando("R"+time_text_aux);
+		puerto.EnviarComando("R" + time_text_aux);
 }
 /**
     \fn  UpdateTabs
@@ -160,26 +159,14 @@ void MainWindow::UpdateTabs()
     ui->tabWidget->setTabEnabled(0, true);
     ui->tabWidget->setTabEnabled(1, true);
 }
-/**
-    \fn  CerrarPuerto
-    \brief Cierra el puerto y lo  deja apuntando a NULL
-*/
-void MainWindow::CerrarPuerto()
-{
-    if(puerto != NULL)
-    {
-        puerto->close();
-        delete puerto;
-        puerto=NULL;
-    }
-}
+
 /**
     \fn  ActualizarEstadoConexion
     \brief Actualiza la interfaz para mostrar que se esta conectado o no
 */
 void MainWindow::ActualizarEstadoConexion()
 {
-    if (Conectado())
+		if (puerto.Conectado())
     {
         ui->editEstado->setStyleSheet("font-weight: bold; color: green; background-color: black;");
         ui->editEstado->setText("Conectado");
@@ -209,42 +196,16 @@ void MainWindow::ActualizarEstadoConexion()
             timerTimeOutSerie->stop();
     }
 }
+
+
 /**
-    \fn  EnviarComando
-    \brief Recive una string, le agrega el inicio y el fin de trama y la envia por puerto serie
-    \param [in] QString comando: String a enviar
+		\fn  NoConectadoError
+		\brief Funcion que informa que el puerto no esta conectado
 */
-void MainWindow::EnviarComando(QString comando)
+void MainWindow::NoConectadoError()
 {
-		QByteArray send = ("#"+ comando + "$").toLatin1();
-    puerto->write(send);
-
-    QTime time = QTime::currentTime();
-    QString time_text = time.toString("hh : mm : ss");
-
-    switch( comando[0].unicode() )
-    {
-        case 'M':
-						ui->listEnviado->addItem(QString("Se envio el comando Manual a las ") + time_text + "hs.");
-            break;
-        case 'T':
-						ui->listEnviado->addItem(QString("Se envio el comando Temporizado a las ") + time_text + "hs.");
-            break;
-        case 'A':
-						ui->listEnviado->addItem(QString("Se envio el comando Automatico a las ") + time_text + "hs.");
-            break;
-        case 'O':
-						ui->listEnviado->addItem(QString("Se envio el comando Ok a las ") + time_text + "hs.");
-            break;
-        case 'S':
-						ui->listEnviado->addItem(QString("Se envio el comando Status a las ") + time_text + "hs.");
-            break;
-        default:
-            break;
-    }
-
-		ui->listEnviado->setCurrentRow(ui->listEnviado->count()-1);
-    m_cant_bytes_enviados += send.size();
+		if (!m_init)
+				QMessageBox::warning(this, QString::fromUtf8("Error de conexión"), "Sin conexión");
 }
 
 /**
@@ -267,113 +228,75 @@ QString FijarAnchoString(QString str, int tam)
     return str;
 }
 
-
-
-
-
-/**
-    \fn  UpdateBytesTotales
-    \brief Muestra la cantidad de bytes enviados y recividos
-*/
-void MainWindow::UpdateBytesTotales()
-{
-    m_status_bytes_recibidos->setText(QString::number(m_cant_bytes_recibidos) + " bytes recibidos, " + QString::number(m_cant_bytes_enviados) + " byte enviados.");
-}
-/**
-    \fn  EnumerarPuertos
-    \brief Enumera los puertos disponibles en un comboBox
-*/
-void MainWindow::EnumerarPuertos()
-{
-    ui->comboBoxPuertos->clear();
-    puerto=NULL;
-    QList<QSerialPortInfo> port= QSerialPortInfo::availablePorts();
-
-    for(int i=0;i<port.size();i++)
-        ui->comboBoxPuertos->addItem(port.at(i).QSerialPortInfo::portName());
-}
 /**
     \fn  on_buttonConexion_clicked
     \brief Slot de clickeado del boton Conexion. Conecta el puerto, inicia los timers y cambia la interfaz
 */
 void MainWindow::on_buttonConexion_clicked()
 {
-    QMessageBox msgBox;
+		if(puerto.IniciarConexion(ui->comboBoxPuertos->currentText()))
+		{
+			//Inicio un timer para graficar en tiempo real
+			timer_plot->start( TIEMPOPLOT );
 
-    if(!puerto)
-    {
-        puerto = new QSerialPort(ui->comboBoxPuertos->currentText());
-        puerto->setBaudRate(QSerialPort::Baud9600);
-        puerto->setDataBits(QSerialPort::Data8);
-        puerto->setFlowControl(QSerialPort::NoFlowControl);
-        puerto->setStopBits(QSerialPort::OneStop);
-        puerto->setParity(QSerialPort::NoParity);
+			//Inicio el timer
+			timerTimeOutSerie->start( TIMEOUTSERIE );
 
-        if(puerto->open(QIODevice::ReadWrite))
-        {
-            connect(puerto, SIGNAL(readyRead()),this,SLOT(onDatosRecibidos()));
+			puerto.EnviarComando( "S" );   //Envio comando status para saber el estado actual de la maquina
 
-            //Inicio un timer para graficar en tiempo real
-            timer_plot->start( TIEMPOPLOT );
-
-            //Inicio el timer
-            timerTimeOutSerie->start( TIMEOUTSERIE );
-
-            EnviarComando( "S" );   //Envio comando status para saber el estado actual de la maquina
-
-           if(confiPorSoft)
-                 EnviarComando(f);
-        }
-        else
-            CerrarPuerto();
-    }
-   else
+		 if(confiPorSoft)
+					 puerto.EnviarComando(f);
+		}
+		else
     {
        timerTimeOutSerie->stop();
-       CerrarPuerto();
+			 puerto.TerminarConexion();
     }
-
      ActualizarEstadoConexion();
 }
+
 /**
     \fn  on_pushButtonManual_clicked
     \brief slot que se encarga de cambiar el estado a manual
 */
 void MainWindow::on_pushButtonManual_clicked()
 {
-   if (Conectado())
-       EnviarComando("M");
+	 if (puerto.Conectado())
+			 puerto.EnviarComando("M");
    else
-       NoConectadoError();
+			 NoConectadoError();
 
-    UpdateBytesTotales();
+		puerto.UpdateBytesTotales();
 }
+
 /**
-    \fn  on_pushButtonManual_clicked
+		\fn  on_pushButtonTemporizado_clicked
     \brief slot que se encarga de cambiar el estado a temporizado
 */
 void MainWindow::on_pushButtonTemporizado_clicked()
 {
-    if (Conectado())
-        EnviarComando("T");
+		if (puerto.Conectado())
+				puerto.EnviarComando("T");
     else
-        NoConectadoError();
+				NoConectadoError();
 
-    UpdateBytesTotales();
+		puerto.UpdateBytesTotales();
 }
+
 /**
     \fn  on_pushButtonManual_clicked
     \brief slot que se encarga de cambiar el estado a automatico
 */
 void MainWindow::on_pushButtonAutomatico_clicked()
 {
-    if (Conectado())
-        EnviarComando("A");
+		if (puerto.Conectado())
+				puerto.EnviarComando("A");
     else
         NoConectadoError();
 
-    UpdateBytesTotales();
+		puerto.UpdateBytesTotales();
 }
+
 
 /**
     \fn  on_pushButtonOk_clicked
@@ -381,13 +304,14 @@ void MainWindow::on_pushButtonAutomatico_clicked()
 */
 void MainWindow::on_pushButtonOk_clicked()
 {
-    if(Conectado())
-        EnviarComando("O");
+		if(puerto.Conectado())
+				puerto.EnviarComando("O");
     else
         NoConectadoError();
 
-    UpdateBytesTotales();
+		puerto.UpdateBytesTotales();
 }
+
 /**
     \fn  on_buttonActualizar_clicked
     \brief slot que actualiza el comboBox de los puertos disponibles
@@ -396,22 +320,23 @@ void MainWindow::on_buttonActualizar_clicked()
 {
     EnumerarPuertos();
 }
+
 /**
     \fn  on_pushButtonEnviarConfiguracion_clicked
     \brief Descripcion
 */
 void MainWindow::on_pushButtonEnviarConfiguracion_clicked()
 {
-    if(Conectado())
+		if(puerto.Conectado())
     {
         QString enviarConfig;
 
-        if( ui->spinBoxHumMa->value() <10)
+				if( ui->spinBoxHumMa->value() < 10)
             enviarConfig += ('0' + ui->spinBoxHumMa->text());
         else
             enviarConfig += ui->spinBoxHumMa->text();
 
-        if(ui->spinBoxHumMi->value() < 10)
+				if( ui->spinBoxHumMi->value() < 10)
              enviarConfig+= ('0' + ui->spinBoxHumMi->text());
         else
             enviarConfig += ui->spinBoxHumMi->text();
@@ -419,22 +344,24 @@ void MainWindow::on_pushButtonEnviarConfiguracion_clicked()
         enviarConfig+=ui->timeEditTiempoRiego->text();
 				enviarConfig+=ui->timeEditHoraRiego->text();
         enviarConfig=("C"+enviarConfig);
-        EnviarComando(enviarConfig);
+				puerto.EnviarComando(enviarConfig);
     }
     else
         NoConectadoError();
 }
+
 /**
     \fn  on_button_tecla_2_clicked
     \brief slot que envia la hora actual por puerto serie
 */
 void MainWindow::on_button_tecla_2_clicked()
 {
-    if(Conectado())
+		if(puerto.Conectado())
         enviarRTC();
     else
         NoConectadoError();
 }
+
 /**
     \fn  PrepararGrafico
     \brief Inicializa todo lo necesario para el grafico
@@ -525,6 +452,7 @@ void MainWindow::PrepararGrafico()
     timer_plot = new QTimer(this);  //Lo creamos
     connect(timer_plot, SIGNAL(timeout()),this,SLOT(realtimePlot()));   //Conectamos su señal de timeout con un slot para graficar en tiempo real
 }
+
 /**
     \fn  realtimePlot
     \brief se encarga de cargar los datos al grafico en tiempo real
@@ -545,15 +473,17 @@ void MainWindow::realtimePlot( void )
     ui->customPlot->xAxis->setRange(time_dbl, 8, Qt::AlignRight);
     ui->customPlot->replot();
 }
+
 /**
     \fn  CerrarPuertoSerie
     \brief slot que cierra el puerto y actualiza la interfaz
 */
-void MainWindow::CerrarPuertoSerie( void )
+void MainWindow::TimeoutPuertoSerie( void )
 {
-    CerrarPuerto();
+		puerto.TerminarConexion();
     ActualizarEstadoConexion();
 }
+
 /**
     \fn  PrepararTimeOutSerie
     \brief Inicializa el timer que se encarga del timeout del puerto serie
@@ -563,7 +493,7 @@ void MainWindow::PrepararTimeOutSerie( void )
     //Pido memoria dinamica
     timerTimeOutSerie = new QTimer(this);
     //Conecto un timer de timeout para el puerto serie. Se dispara cuando se conecta el puerto
-    connect(timerTimeOutSerie, SIGNAL(timeout()),this,SLOT(CerrarPuertoSerie()));
+		connect(timerTimeOutSerie, SIGNAL(timeout()),this,SLOT(TimeoutPuertoSerie()));
 }
 /**
     \fn  PrenderLluvia

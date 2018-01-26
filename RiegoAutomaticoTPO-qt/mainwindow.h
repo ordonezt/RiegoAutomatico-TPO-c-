@@ -18,6 +18,8 @@
 #include <QPointer>
 #include <QVector>
 #include <QDateTime>
+#include "puertoserie.h"
+
 #define DEFAULT					'5'
 #define MANUAL					'1'
 #define TEMPORIZADO			'2'
@@ -60,17 +62,12 @@ public:
 
 private:
 
-     QSerialPort *puerto;
-
-     double Temperatura_y, Humedad_y, m_Lluvia;
-
+		 PuertoSerie puerto;
+		 double Temperatura_y, Humedad_y, m_Lluvia;
      QTime time;
      QTimer *timer, *timer_plot, *timerTimeOutSerie;
      QString time_text;
-     QLabel *m_status_bytes_recibidos;
-		 QByteArray m_datos_recibidos;
-     int m_cant_bytes_recibidos;
-		 int m_cant_bytes_enviados;
+		 QLabel *bytesStatus;
 		 bool m_init;
      void estadoInicial();
      void ejecutarTimer();
@@ -86,16 +83,12 @@ public:
 		void EnumerarPuertos();
 		void ActualizarEstadoConexion();
     void mostrarMarcador();
-
-    void CerrarPuerto();
-
-    void UpdateTabs();
-
+		void UpdateTabs();
+		void NoConectadoError();
 		void actualizarPlot();
 
 private slots:
-    void configActive();
-    void onDatosRecibidos();
+		void configActive();
     void mostrarReloj();
     void on_buttonConexion_clicked();
     void on_pushButtonManual_clicked();
@@ -108,7 +101,7 @@ private slots:
 
     void on_button_tecla_2_clicked();
 
-    void CerrarPuertoSerie( void );
+		void TimeoutPuertoSerie( void );
 
     void realtimePlot(void);
 

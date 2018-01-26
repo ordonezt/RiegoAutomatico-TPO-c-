@@ -3,6 +3,7 @@
 PuertoSerie::PuertoSerie()
 {
 
+
 }
 /**
 		\fn  onDatosRecibidos
@@ -11,9 +12,9 @@ PuertoSerie::PuertoSerie()
 void PuertoSerie::onDatosRecibidos()
 {
 		QByteArray bytes;
-		int cant = puerto->bytesAvailable();
+		int cant = this->bytesAvailable();
 		bytes.resize(cant);
-		puerto->read(bytes.data(), bytes.size());
+		this->read(bytes.data(),bytes.length());
 
 		m_datos_recibidos += bytes;
 
@@ -26,7 +27,7 @@ void PuertoSerie::onDatosRecibidos()
 		Parseo();
 }
 /**
-		\fn  Parceo
+		\fn  Parseo
 		\brief Parsea los datos recibidos del puerto serie
 */
 void PuertoSerie::Parseo()
@@ -157,6 +158,45 @@ void PuertoSerie::ProcesarComando(QString comando)
 
 		ui->listRecibido->setCurrentRow(ui->listRecibido->count()-1);
 }
+
+/**
+		\fn  EnviarComando
+		\brief Recive una string, le agrega el inicio y el fin de trama y la envia por puerto serie
+		\param [in] QString comando: String a enviar
+*/
+void PuertoSerie::EnviarComando(QString comando)
+{
+		QByteArray send = ("#" + comando + "$").toLatin1();
+		puerto->write(send);
+
+		QTime time = QTime::currentTime();
+		QString time_text = time.toString("hh : mm : ss");
+
+		switch( comando[0].unicode() )
+		{
+				case 'M':
+						ui->listEnviado->addItem(QString("Se envio el comando Manual a las ") + time_text + "hs.");
+						break;
+				case 'T':
+						ui->listEnviado->addItem(QString("Se envio el comando Temporizado a las ") + time_text + "hs.");
+						break;
+				case 'A':
+						ui->listEnviado->addItem(QString("Se envio el comando Automatico a las ") + time_text + "hs.");
+						break;
+				case 'O':
+						ui->listEnviado->addItem(QString("Se envio el comando Ok a las ") + time_text + "hs.");
+						break;
+				case 'S':
+						ui->listEnviado->addItem(QString("Se envio el comando Status a las ") + time_text + "hs.");
+						break;
+				default:
+						break;
+		}
+
+		ui->listEnviado->setCurrentRow(ui->listEnviado->count()-1);
+		m_cant_bytes_enviados += send.size();
+}
+
 /**
 		\fn  Conectado
 		\brief Informa si el puerto esta conectado o desconectado
@@ -165,12 +205,64 @@ bool PuertoSerie::Conectado()
 {
 		return puerto && puerto->isOpen();
 }
+
 /**
-		\fn  NoConectadoError
-		\brief Funcion que informa que el puerto no esta conectado
+		\fn  UpdateBytesTotales
+		\brief Muestra la cantidad de bytes enviados y recividos
 */
-void PuertoSerie::NoConectadoError()
+QString PuertoSerie::UpdateBytesTotales()
 {
-		if (!m_init)
-				QMessageBox::warning(this, QString::fromUtf8("Error de conexión"), "Sin conexión");
+		statusBytes = QString::number(cantBytesRecibidos) + " bytes recibidos, " + QString::number(cantBytesEnviados) + " byte enviados.";
+}
+
+/**
+		\fn  EnumerarPuertos
+		\brief Enumera los puertos disponibles en un comboBox
+*/
+void PuertoSerie::EnumerarPuertos()
+{
+		ui->comboBoxPuertos->clear();
+		puerto=NULL;
+		QList<QSerialPortInfo> port= QSerialPortInfo::availablePorts();
+
+		for(int i=0;i<port.size();i++)
+				ui->comboBoxPuertos->addItem(port.at(i).QSerialPortInfo::portName());
+}
+
+/**
+ * \fn IniciarConexion
+ * \brief Inicia la conexion del puerto
+ */
+bool PuertoSerie::IniciarConexion(QString Puerto)
+{
+	this->setPortName(Puerto);
+	this->setBaudRate(QSerialPort::Baud9600);
+	this->setDataBits(QSerialPort::Data8);
+	this->setFlowControl(QSerialPort::NoFlowControl);
+	this->setStopBits(QSerialPort::OneStop);
+	this->setParity(QSerialPort::NoParity);
+
+	if(this->open(QIODevice::ReadWrite))
+			connect(this, SIGNAL(readyRead()),SLOT(onDatosRecibidos()));
+	else
+			CerrarPuerto();
+}
+
+/**
+		\fn  TerminarConexion
+		\brief Cierra la conexion con el Puerto
+*/
+void PuertoSerie::TerminarConexion()
+{
+	this->close();
+}
+
+/**
+		\fn  CerrarPuertoSerie
+		\brief slot que cierra el puerto y actualiza la interfaz
+*/
+void PuertoSerie::TimeoutPuertoSerie( void )
+{
+		CerrarPuerto();
+		ActualizarEstadoConexion();
 }
