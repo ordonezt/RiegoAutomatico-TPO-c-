@@ -21,7 +21,7 @@ void PuertoSerie::onDatosRecibidos()
 	bytes.resize(cant);
 	this->read(bytes.data(),bytes.length());
 
-	bytes += bytes;
+    m_datos_recibidos += bytes;
 
 	qDebug() << "bytes recibidos:" << bytes;
 

@@ -580,7 +580,7 @@ void MainWindow::on_buttonActualizar_clicked()
 	QList<QString> portList;
 
 	ui->comboBoxPuertos->clear();
-	puerto.EnumerarPuertos();
+    portList = puerto.EnumerarPuertos();
 	for(int i = 0 ; i < portList.size() ; i++)
 		ui->comboBoxPuertos->addItem(portList.at(i));
 }
