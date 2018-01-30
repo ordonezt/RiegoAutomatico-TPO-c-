@@ -5,14 +5,11 @@
 #include <QMessageBox>
 #include <QLabel>
 #include <QPushButton>
-# include <Qtimer>
-# include <QPixmap>
+#include <Qtimer>
+#include <QPixmap>
 #include <QQueue>
-#include  "qserialport.h"
 #include <QSerialPortInfo>
 #include <QSerialPort>
-#include "qserialportinfo.h"
-#include <Configkit.h>
 #include <QList>
 #include <QMap>
 #include <QPointer>
@@ -43,13 +40,15 @@
 #define LLUVIA_OFF  -1
 
 #define TIEMPOPLOT   1000  //Tiempo de refresco del grafico
-#define TIMEOUTSERIE 4000 //Tiempo de timeout del tiempo serie en ms
 //
+
 extern QByteArray f;
 extern bool confiPorSoft;
 extern bool confiPorSf;
-namespace Ui {
-    class MainWindow;
+
+namespace Ui
+{
+	class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -61,53 +60,47 @@ public:
     ~MainWindow();
 
 private:
-
-		 PuertoSerie puerto;
-		 double Temperatura_y, Humedad_y, m_Lluvia;
-     QTime time;
-     QTimer *timer, *timer_plot, *timerTimeOutSerie;
-     QString time_text;
-		 QLabel *bytesStatus;
-		 bool m_init;
-     void estadoInicial();
-     void ejecutarTimer();
-     void iniciarGrafico();
-     void enviarRTC();
-     void PrepararGrafico();
-     void PrepararTimeOutSerie();
-     void PrenderLluvia();
-     void ApagarLluvia();
-     void DesconectarLluvia();
+	double Temperatura_y, Humedad_y, m_Lluvia;
+	QTime time;
+	QTimer *timer, *timer_plot;
+	QString time_text;
+	QLabel *bytesStatus;
+	bool m_init;
+	void estadoInicial();
+	void ejecutarTimer();
+	void iniciarGrafico();
+	void enviarRTC();
+	void PrepararGrafico();
+	void PrenderLluvia();
+	void ApagarLluvia();
+	void DesconectarLluvia();
 
 public:
-		void EnumerarPuertos();
-		void ActualizarEstadoConexion();
-    void mostrarMarcador();
-		void UpdateTabs();
-		void NoConectadoError();
-		void actualizarPlot();
+	void mostrarMarcador();
+	void UpdateTabs();
+	void NoConectadoError();
+	void actualizarPlot();
 
 private slots:
-		void configActive();
-    void mostrarReloj();
-    void on_buttonConexion_clicked();
-    void on_pushButtonManual_clicked();
-    void on_pushButtonTemporizado_clicked();
-    void on_pushButtonAutomatico_clicked();
-    void on_pushButtonOk_clicked();
-    void on_buttonActualizar_clicked();
+	void mostrarReloj();
+	void on_buttonConexion_clicked();
+	void on_pushButtonManual_clicked();
+	void on_pushButtonTemporizado_clicked();
+	void on_pushButtonAutomatico_clicked();
+	void on_pushButtonOk_clicked();
+	void on_buttonActualizar_clicked();
+	void on_pushButtonEnviarConfiguracion_clicked();
+	void realtimePlot(void);
 
-    void on_pushButtonEnviarConfiguracion_clicked();
+	void on_button_EnviarHora_clicked();
 
-    void on_button_tecla_2_clicked();
-
-		void TimeoutPuertoSerie( void );
-
-    void realtimePlot(void);
+	public slots:
+	void ProcesarComando(QString comando);
+	void ActualizarEstadoConexion();
 
 private:
-    Ui::MainWindow *ui;
-signals:
+	Ui::MainWindow *ui;
+	PuertoSerie puerto;
 
 };
 

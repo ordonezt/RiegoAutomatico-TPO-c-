@@ -1,8 +1,13 @@
 #include "puertoserie.h"
 
-PuertoSerie::PuertoSerie()
+PuertoSerie::PuertoSerie() : QSerialPort(), timerTimeOutSerie()
 {
+	//Conecto un timer de timeout para el puerto serie. Se dispara cuando se conecta el puerto
+	connect(&timerTimeOutSerie, &QTimer::timeout, this, &PuertoSerie::TimeoutPuertoSerie);
+}
 
+PuertoSerie::~PuertoSerie()
+{
 
 }
 /**
@@ -11,152 +16,53 @@ PuertoSerie::PuertoSerie()
 */
 void PuertoSerie::onDatosRecibidos()
 {
-		QByteArray bytes;
-		int cant = this->bytesAvailable();
-		bytes.resize(cant);
-		this->read(bytes.data(),bytes.length());
+	QByteArray bytes;
+	int cant = this->bytesAvailable();
+	bytes.resize(cant);
+	this->read(bytes.data(),bytes.length());
 
-		m_datos_recibidos += bytes;
+	bytes += bytes;
 
-		qDebug() << "bytes recibidos:" << bytes;
+	qDebug() << "bytes recibidos:" << bytes;
 
-		m_cant_bytes_recibidos += cant;
+	cantBytesRecibidos += cant;
 
-		UpdateBytesTotales();
+	UpdateBytesTotales();
 
-		Parseo();
+	Parseo();
 }
+
 /**
 		\fn  Parseo
 		\brief Parsea los datos recibidos del puerto serie
 */
 void PuertoSerie::Parseo()
 {
-		QString comando="";
-		QString depurado = "ATMCOIERWLliohHt#$0123456789";
+	QString comando="";
+	QString depurado = "ATMCOIERWLliohHt#$0123456789";
 
-		for (int i = 0; i < m_datos_recibidos.count(); i++)
+	for (int i = 0; i < m_datos_recibidos.count(); i++)
+	{
+		unsigned char dato = m_datos_recibidos[i];
+
+		switch (dato)
 		{
-				unsigned char dato = m_datos_recibidos[i];
-
-				switch (dato)
+			case '$':
+				if (comando != "")
 				{
-
-						case '$':
-								if (comando != "")
-								{
-										qDebug() << "Trama interpretada";
-										ProcesarComando(comando);
-										comando = "";
-
-										//Reset del timer de timeout
-										timerTimeOutSerie->start();
-								}
-								break;
-
-						default:
-						if(depurado.contains(dato))
-										comando += dato;
-								break;
+					qDebug() << "Trama interpretada";
+					emit ComandoProcesado(comando);
+					comando = "";
+					//Reset del timer de timeout
+					timerTimeOutSerie.start();
 				}
+				break;
+			default:
+				if(depurado.contains(dato))
+					comando += dato;
+				break;
 		}
-
-		m_datos_recibidos = comando.toLatin1();
-
-}
-/**
-		\fn  ProcesarComando
-		\brief Procesa el comando recibido
-*/
-void PuertoSerie::ProcesarComando(QString comando)
-{
-		QTime time = QTime::currentTime();
-		QString time_text = time.toString("hh:mm:ss");
-
-		unsigned char base = comando[0].toLatin1();
-
-		if(base != '#')
-		{
-				//QMessageBox::warning(this, QString::fromUtf8("Error al comienzo de trama"), "No se respeta el protocolo");
-				return;
-		}
-
-		base = comando[1].toLatin1();
-
-		switch (base)
-		{
-				case TEMPERATURA:
-						Temperatura_y = comando.mid(2,-1).toFloat()/10;
-						ui->lcdTemperatura->setProperty("value", Temperatura_y);
-						break;
-
-				case HUMEDAD:
-						Humedad_y = (comando.mid(2,-1)).toInt();
-						ui->lcdHumedad->setProperty("value", Humedad_y);
-						break;
-
-				case MODOMANUAL:
-						ui->labelModoActual->setText("Manual");
-						ui->labelModoActual->setStyleSheet("QLabel { font-weight: bold; color : blue; }");
-
-						ui->listRecibido->addItem( QString::fromUtf8("Se cambio al modo Manual a las ") + time_text + "hs." );
-						//ui->listRecibido->setCurrentRow(ui->listRecibido->count()-1);
-						break;
-
-				case MODOAUTOMATICO:
-						ui->labelModoActual->setText("Automatico");
-						ui->labelModoActual->setStyleSheet("QLabel { font-weight: bold; color : red; }");
-
-						ui->listRecibido->addItem( QString::fromUtf8("Se cambio al modo Automatico a las ") + time_text + "hs." );
-						//ui->listRecibido->setCurrentRow(ui->listRecibido->count()-1);
-						break;
-
-				case MODOTEMPORIZADO:
-						ui->labelModoActual->setText("Temporizado");
-						ui->labelModoActual->setStyleSheet("QLabel { font-weight: bold; color : yellow; }");
-
-						ui->listRecibido->addItem( QString::fromUtf8("Se cambio al modo Temporizado a las ") + time_text + "hs." );
-						//ui->listRecibido->setCurrentRow(ui->listRecibido->count()-1);
-						break;
-
-				case 'o':
-						ui->labelEstadoActual->setText("Apagado");
-						ui->labelEstadoActual->setStyleSheet("QLabel { font-weight: bold; color : red; }");
-
-						ui->listRecibido->addItem( QString::fromUtf8("Se apago el riego a las ") + time_text + "hs." );
-						//ui->listRecibido->setCurrentRow(ui->listRecibido->count()-1);
-						break;
-
-				case 'i':
-						ui->labelEstadoActual->setText("Prendido");
-						ui->labelEstadoActual->setStyleSheet("QLabel { font-weight: bold; color : green; }");
-
-						ui->listRecibido->addItem( QString::fromUtf8("Se encendio el riego a las ") + time_text + "hs." );
-						break;
-
-				case CONFIGURACION:
-						ui->labelModoActual->setText("Configuracion");
-						ui->labelModoActual->setStyleSheet("QLabel { font-weight: bold; color : green; }");
-						break;
-
-				case RECIBIDO:
-
-							break;
-
-				case MENSAJE_LLUVIA_ON:
-						PrenderLluvia();
-						break;
-
-				case MENSAJE_LLUVIA_OFF:
-						ApagarLluvia();
-						break;
-
-				default:
-						m_status_bytes_recibidos->setText("Comando no valido :"+base);
-						break;
-		}
-
-		ui->listRecibido->setCurrentRow(ui->listRecibido->count()-1);
+	}
 }
 
 /**
@@ -166,35 +72,10 @@ void PuertoSerie::ProcesarComando(QString comando)
 */
 void PuertoSerie::EnviarComando(QString comando)
 {
-		QByteArray send = ("#" + comando + "$").toLatin1();
-		puerto->write(send);
+	QByteArray send = ("#" + comando + "$").toLatin1();
+	this->write(send);
 
-		QTime time = QTime::currentTime();
-		QString time_text = time.toString("hh : mm : ss");
-
-		switch( comando[0].unicode() )
-		{
-				case 'M':
-						ui->listEnviado->addItem(QString("Se envio el comando Manual a las ") + time_text + "hs.");
-						break;
-				case 'T':
-						ui->listEnviado->addItem(QString("Se envio el comando Temporizado a las ") + time_text + "hs.");
-						break;
-				case 'A':
-						ui->listEnviado->addItem(QString("Se envio el comando Automatico a las ") + time_text + "hs.");
-						break;
-				case 'O':
-						ui->listEnviado->addItem(QString("Se envio el comando Ok a las ") + time_text + "hs.");
-						break;
-				case 'S':
-						ui->listEnviado->addItem(QString("Se envio el comando Status a las ") + time_text + "hs.");
-						break;
-				default:
-						break;
-		}
-
-		ui->listEnviado->setCurrentRow(ui->listEnviado->count()-1);
-		m_cant_bytes_enviados += send.size();
+	cantBytesRecibidos += send.size();
 }
 
 /**
@@ -203,7 +84,9 @@ void PuertoSerie::EnviarComando(QString comando)
 */
 bool PuertoSerie::Conectado()
 {
-		return puerto && puerto->isOpen();
+	bool status = this->isOpen();
+
+	return status;
 }
 
 /**
@@ -212,21 +95,22 @@ bool PuertoSerie::Conectado()
 */
 QString PuertoSerie::UpdateBytesTotales()
 {
-		statusBytes = QString::number(cantBytesRecibidos) + " bytes recibidos, " + QString::number(cantBytesEnviados) + " byte enviados.";
+	return (QString::number(cantBytesRecibidos) + " bytes recibidos, " + QString::number(cantBytesEnviados) + " byte enviados.");
 }
 
 /**
 		\fn  EnumerarPuertos
 		\brief Enumera los puertos disponibles en un comboBox
 */
-void PuertoSerie::EnumerarPuertos()
+QList<QString> PuertoSerie::EnumerarPuertos()
 {
-		ui->comboBoxPuertos->clear();
-		puerto=NULL;
-		QList<QSerialPortInfo> port= QSerialPortInfo::availablePorts();
+	QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
+	QList<QString> portNameList;
 
-		for(int i=0;i<port.size();i++)
-				ui->comboBoxPuertos->addItem(port.at(i).QSerialPortInfo::portName());
+	for(int i=0;i<portList.size();i++)
+		portNameList.append(portList.at(i).QSerialPortInfo::portName());
+
+	return portNameList;
 }
 
 /**
@@ -235,6 +119,8 @@ void PuertoSerie::EnumerarPuertos()
  */
 bool PuertoSerie::IniciarConexion(QString Puerto)
 {
+	bool success = false;
+
 	this->setPortName(Puerto);
 	this->setBaudRate(QSerialPort::Baud9600);
 	this->setDataBits(QSerialPort::Data8);
@@ -243,9 +129,28 @@ bool PuertoSerie::IniciarConexion(QString Puerto)
 	this->setParity(QSerialPort::NoParity);
 
 	if(this->open(QIODevice::ReadWrite))
-			connect(this, SIGNAL(readyRead()),SLOT(onDatosRecibidos()));
+	{
+		connect(this, SIGNAL(readyRead()),SLOT(onDatosRecibidos()));
+		success = true;
+
+		//Inicio el timer
+		timerTimeOutSerie.start( TIMEOUTSERIE );
+	}
 	else
-			CerrarPuerto();
+		TerminarConexion();
+
+
+	return success;
+}
+
+/**
+		\fn  TimeoutPuertoSerie
+		\brief slot que cierra el puerto y actualiza la interfaz
+*/
+void PuertoSerie::TimeoutPuertoSerie()
+{
+	TerminarConexion();
+	emit DesconexionTimeout();
 }
 
 /**
@@ -254,15 +159,6 @@ bool PuertoSerie::IniciarConexion(QString Puerto)
 */
 void PuertoSerie::TerminarConexion()
 {
+	timerTimeOutSerie.stop();
 	this->close();
-}
-
-/**
-		\fn  CerrarPuertoSerie
-		\brief slot que cierra el puerto y actualiza la interfaz
-*/
-void PuertoSerie::TimeoutPuertoSerie( void )
-{
-		CerrarPuerto();
-		ActualizarEstadoConexion();
 }

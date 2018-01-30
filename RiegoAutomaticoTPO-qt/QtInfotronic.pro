@@ -19,18 +19,15 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-		mainwindow.cpp \
-    configkit.cpp \
+    mainwindow.cpp \
     qcustomplot.cpp \
     puertoserie.cpp
 
 HEADERS  += mainwindow.h \	
-    configkit.h \
     qcustomplot.h \
     puertoserie.h
 
-FORMS    += mainwindow.ui \
-    configkit.ui
+FORMS    += mainwindow.ui
 
 OTHER_FILES += \
 	QtInfotronic.pr

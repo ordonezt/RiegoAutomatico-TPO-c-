@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>732</width>
-    <height>417</height>
+    <width>663</width>
+    <height>499</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -49,9 +49,9 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>150</y>
-          <width>141</width>
-          <height>191</height>
+          <y>140</y>
+          <width>181</width>
+          <height>151</height>
          </rect>
         </property>
         <property name="layoutDirection">
@@ -64,7 +64,7 @@
          <string>Selector</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
@@ -104,9 +104,9 @@
        <widget class="QGroupBox" name="groupSensores">
         <property name="geometry">
          <rect>
-          <x>160</x>
-          <y>150</y>
-          <width>461</width>
+          <x>200</x>
+          <y>100</y>
+          <width>421</width>
           <height>191</height>
          </rect>
         </property>
@@ -177,7 +177,7 @@
           <rect>
            <x>10</x>
            <y>30</y>
-           <width>411</width>
+           <width>401</width>
            <height>91</height>
           </rect>
          </property>
@@ -297,10 +297,10 @@
        <widget class="QGroupBox" name="groupBoxConexion">
         <property name="geometry">
          <rect>
-          <x>570</x>
-          <y>140</y>
+          <x>10</x>
+          <y>290</y>
           <width>300</width>
-          <height>141</height>
+          <height>131</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -347,42 +347,6 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QComboBox" name="comboBoxPuertos">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="editable">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="buttonActualizar">
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="toolTip">
-              <string>Refrescar puertos</string>
-             </property>
-             <property name="statusTip">
-              <string>Refrescar puertos</string>
-             </property>
-             <property name="text">
-              <string>Actualizar</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
          <item row="2" column="0">
           <widget class="QLabel" name="labelEstado">
            <property name="font">
@@ -422,6 +386,42 @@
            </property>
           </widget>
          </item>
+         <item row="1" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QComboBox" name="comboBoxPuertos">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editable">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonActualizar">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>Refrescar puertos</string>
+             </property>
+             <property name="statusTip">
+              <string>Refrescar puertos</string>
+             </property>
+             <property name="text">
+              <string>Actualizar</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
         </layout>
        </widget>
        <widget class="QGroupBox" name="groupBoxConfiguracion">
@@ -430,7 +430,7 @@
           <x>200</x>
           <y>10</y>
           <width>421</width>
-          <height>131</height>
+          <height>91</height>
          </rect>
         </property>
         <property name="styleSheet">
@@ -445,7 +445,7 @@
            <x>10</x>
            <y>20</y>
            <width>277</width>
-           <height>101</height>
+           <height>61</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridConfig">
@@ -503,7 +503,7 @@
          <property name="geometry">
           <rect>
            <x>290</x>
-           <y>55</y>
+           <y>30</y>
            <width>121</width>
            <height>31</height>
           </rect>
@@ -624,10 +624,10 @@
        <widget class="QCustomPlot" name="customPlot" native="true">
         <property name="geometry">
          <rect>
-          <x>-1</x>
-          <y>-1</y>
-          <width>711</width>
-          <height>351</height>
+          <x>0</x>
+          <y>0</y>
+          <width>641</width>
+          <height>431</height>
          </rect>
         </property>
        </widget>
@@ -642,7 +642,7 @@
           <x>0</x>
           <y>0</y>
           <width>711</width>
-          <height>351</height>
+          <height>481</height>
          </rect>
         </property>
         <property name="font">
@@ -666,8 +666,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>711</width>
-            <height>324</height>
+            <width>641</width>
+            <height>411</height>
            </rect>
           </property>
           <property name="styleSheet">
@@ -684,8 +684,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>711</width>
-            <height>324</height>
+            <width>641</width>
+            <height>411</height>
            </rect>
           </property>
           <property name="styleSheet">
