@@ -74,7 +74,6 @@ void PuertoSerie::EnviarComando(QString comando)
 {
 	QByteArray send = ("#" + comando + "$").toLatin1();
 	this->write(send);
-
 	cantBytesRecibidos += send.size();
 }
 

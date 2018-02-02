@@ -20,9 +20,7 @@
 #define SS_INPUT_OFF        "background-color: red;"
 
 #define LOG_MAXCOUNT    500
-QByteArray f;
-bool confiPorSoft;
-bool confiPorSf;
+
 /**
 	 \fn  Nombre de la Funcion
 	 \brief Descripcion
@@ -377,7 +375,6 @@ void::MainWindow:: ejecutarTimer()
 */
 void::MainWindow:: estadoInicial()
 {
-	confiPorSf=false;
 	bytesStatus = new QLabel(this);
 	ui->statusBar->addWidget(bytesStatus);
 }
@@ -419,12 +416,6 @@ void MainWindow::mostrarReloj()
 	time_text = time.toString("hh:mm:ss");
 	ui->Hora->setText(time_text);
 
-	if(puerto.Conectado())
-		if(confiPorSoft)
-		{
-			QMessageBox::warning(this, QString::fromUtf8("config"),f);
-			confiPorSoft=false;
-		}
 }
 
 /**
@@ -488,8 +479,6 @@ void MainWindow::on_buttonConexion_clicked()
 		ui->listEnviado->addItem("Se envio el comando Status a las " + ui->Hora->text() + "hs.");
 		ui->listEnviado->setCurrentRow(ui->listEnviado->count()-1);
 
-		if(confiPorSoft)
-			puerto.EnviarComando(f);
 	}
 	else
 	{

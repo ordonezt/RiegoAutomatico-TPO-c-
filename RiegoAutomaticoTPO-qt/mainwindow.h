@@ -42,10 +42,6 @@
 #define TIEMPOPLOT   1000  //Tiempo de refresco del grafico
 //
 
-extern QByteArray f;
-extern bool confiPorSoft;
-extern bool confiPorSf;
-
 namespace Ui
 {
 	class MainWindow;
