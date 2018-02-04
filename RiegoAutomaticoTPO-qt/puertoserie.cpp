@@ -3,7 +3,8 @@
 PuertoSerie::PuertoSerie() : QSerialPort(), timerTimeOutSerie()
 {
 	//Conecto un timer de timeout para el puerto serie. Se dispara cuando se conecta el puerto
-	connect(&timerTimeOutSerie, &QTimer::timeout, this, &PuertoSerie::TimeoutPuertoSerie);
+    connect(&timerTimeOutSerie, &QTimer::timeout, this, &PuertoSerie::TimeoutPuertoSerie);
+    connect(this, SIGNAL(readyRead()),SLOT(onDatosRecibidos()));
 }
 
 PuertoSerie::~PuertoSerie()
@@ -16,20 +17,18 @@ PuertoSerie::~PuertoSerie()
 */
 void PuertoSerie::onDatosRecibidos()
 {
-	QByteArray bytes;
-	int cant = this->bytesAvailable();
-	bytes.resize(cant);
-	this->read(bytes.data(),bytes.length());
+    if(this->bytesAvailable() != 0)
+    {
+        m_datos_recibidos = this->readLine();
 
-    m_datos_recibidos += bytes;
+        qDebug() << "bytes recibidos:" << m_datos_recibidos;
 
-	qDebug() << "bytes recibidos:" << bytes;
+        cantBytesRecibidos += m_datos_recibidos.length();
 
-	cantBytesRecibidos += cant;
+        UpdateBytesTotales();
 
-	UpdateBytesTotales();
-
-	Parseo();
+        Parseo();
+    }
 }
 
 /**
@@ -52,7 +51,7 @@ void PuertoSerie::Parseo()
 				{
 					qDebug() << "Trama interpretada";
 					emit ComandoProcesado(comando);
-					comando = "";
+                    comando = "";
 					//Reset del timer de timeout
 					timerTimeOutSerie.start();
 				}
@@ -128,8 +127,7 @@ bool PuertoSerie::IniciarConexion(QString Puerto)
 	this->setParity(QSerialPort::NoParity);
 
 	if(this->open(QIODevice::ReadWrite))
-	{
-		connect(this, SIGNAL(readyRead()),SLOT(onDatosRecibidos()));
+    {
 		success = true;
 
 		//Inicio el timer
@@ -158,6 +156,6 @@ void PuertoSerie::TimeoutPuertoSerie()
 */
 void PuertoSerie::TerminarConexion()
 {
-	timerTimeOutSerie.stop();
+    timerTimeOutSerie.stop();
 	this->close();
 }

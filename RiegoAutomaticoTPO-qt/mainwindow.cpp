@@ -38,15 +38,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
 	QList<QString> portList;
 
-	m_init = true;
 	ui->setupUi(this);
 
 	timer_plot = NULL;
 
-	mostrarMarcador();
-	estadoInicial();
-	ejecutarTimer();
-	UpdateTabs();
+
+
+	mostrarMarcador();  //Preparo el LCD
+	estadoInicial();    //Preparo el contador de Bytes
+	ejecutarTimer();    //Preparo el Timer de la hora
+	UpdateTabs();       //Muestro las tabs 2 y 3
 
 	ui->comboBoxPuertos->clear();
 	portList = puerto.EnumerarPuertos();
@@ -55,9 +56,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	ActualizarEstadoConexion();
 	puerto.UpdateBytesTotales();
-	m_init = false;
-	Temperatura_y = 0;
-	Humedad_y = 0;
+
+	connect(&puerto,&PuertoSerie::DesconexionTimeout, this, &MainWindow::ActualizarEstadoConexion);
+
+	connect(&puerto, &PuertoSerie::ComandoProcesado, this, &MainWindow::ProcesarComando);
+
 	PrepararGrafico();
 }
 /**
@@ -204,8 +207,7 @@ void MainWindow::ActualizarEstadoConexion()
 */
 void MainWindow::NoConectadoError()
 {
-	if (!m_init)
-		QMessageBox::warning(this, QString::fromUtf8("Error de conexión"), "Sin conexión");
+	QMessageBox::warning(this, QString::fromUtf8("Error de conexión"), "Sin conexión");
 }
 
 
@@ -217,6 +219,10 @@ void MainWindow::NoConectadoError()
 */
 void MainWindow::PrepararGrafico()
 {
+
+	Temperatura_y = 0;
+	Humedad_y = 0;
+
 	//Hacemos visible la etiqueta de referencia y seteamos la fuente a "Helvetica" con un tamaño de 22 en la esquina superior izquierda:
 	ui->customPlot->legend->setVisible( true ); //La hacemos visible
 	ui->customPlot->legend->setFont( QFont( "Helvetica" , 12 ) );   //Seteamos la fuente
@@ -465,20 +471,19 @@ QString FijarAnchoString(QString str, int tam)
 */
 void MainWindow::on_buttonConexion_clicked()
 {
-	if(puerto.IniciarConexion(ui->comboBoxPuertos->currentText()))
+	if(!puerto.isOpen())
 	{
-		//Inicio un timer para graficar en tiempo real
-		timer_plot->start( TIEMPOPLOT );
+		if(puerto.IniciarConexion(ui->comboBoxPuertos->currentText()))
+		{
+			//Inicio un timer para graficar en tiempo real
+			timer_plot->start( TIEMPOPLOT );
 
-		connect(&puerto,&PuertoSerie::DesconexionTimeout, this, &MainWindow::ActualizarEstadoConexion);
+			puerto.EnviarComando( "S" );   //Envio comando status para saber el estado actual de la maquina
 
-		connect(&puerto, &PuertoSerie::ComandoProcesado, this, &MainWindow::ProcesarComando);
+			ui->listEnviado->addItem("Se envio el comando Status a las " + ui->Hora->text() + "hs.");
+			ui->listEnviado->setCurrentRow(ui->listEnviado->count()-1);
 
-		puerto.EnviarComando( "S" );   //Envio comando status para saber el estado actual de la maquina
-
-		ui->listEnviado->addItem("Se envio el comando Status a las " + ui->Hora->text() + "hs.");
-		ui->listEnviado->setCurrentRow(ui->listEnviado->count()-1);
-
+		}
 	}
 	else
 	{
@@ -584,20 +589,28 @@ void MainWindow::on_pushButtonEnviarConfiguracion_clicked()
 	{
 		QString enviarConfig;
 
-		if( ui->spinBoxHumMa->value() < 10)
-			enviarConfig += ('0' + ui->spinBoxHumMa->text());
-		else
-			enviarConfig += ui->spinBoxHumMa->text();
+		if(ui->spinBoxHumMa->value() > ui->spinBoxHumMi->value())
+		{
 
-		if( ui->spinBoxHumMi->value() < 10)
-			enviarConfig+= ('0' + ui->spinBoxHumMi->text());
-		else
-			enviarConfig += ui->spinBoxHumMi->text();
+			if( ui->spinBoxHumMi->value() < 10)
+				enviarConfig+= ('0' + ui->spinBoxHumMi->text());
+			else
+				enviarConfig += ui->spinBoxHumMi->text();
 
-		enviarConfig+=ui->timeEditTiempoRiego->text();
-		enviarConfig+=ui->timeEditHoraRiego->text();
-		enviarConfig=("C"+enviarConfig);
-		puerto.EnviarComando(enviarConfig);
+			if( ui->spinBoxHumMa->value() < 10)
+				enviarConfig += ('0' + ui->spinBoxHumMa->text());
+			else
+				enviarConfig += ui->spinBoxHumMa->text();
+
+			enviarConfig+=ui->timeEditTiempoRiego->text();
+			enviarConfig+=ui->timeEditHoraRiego->text();
+			enviarConfig=("C"+enviarConfig);
+			puerto.EnviarComando(enviarConfig);
+		}
+		else
+		{
+			QMessageBox::warning(this, QString::fromUtf8("Error de Formato"), "La Humedad Maxima no puede ser menor o igual a la Minima");
+		}
 	}
 	else
 		NoConectadoError();
