@@ -145,10 +145,16 @@ void MainWindow::ProcesarComando(QString comando)
 		case CONFIGURACION:
 			ui->labelModoActual->setText("Configuracion");
 			ui->labelModoActual->setStyleSheet("QLabel { font-weight: bold; color : green; }");
+			ui->listRecibido->addItem( QString::fromUtf8("Se cambio al modo Configuracion a las ") + time_text + "hs." );
 			break;
 
 		case RECIBIDO:
 
+			break;
+
+		case RTC:
+			enviarRTC();
+			ui->listRecibido->addItem( QString::fromUtf8("Se solicito envio de hora a las ") + time_text + "hs." );
 			break;
 
 		case MENSAJE_LLUVIA_ON:
@@ -159,6 +165,9 @@ void MainWindow::ProcesarComando(QString comando)
 			ApagarLluvia();
 			break;
 
+		case CONFIG_PARAMETROS:
+			CargarParametros( comando );
+			break;
 		default:
 			bytesStatus->setText("Comando no valido :" + base);
 			break;
@@ -191,6 +200,18 @@ void MainWindow::ActualizarEstadoConexion()
 
 		ui->labelEstadoActual->setText("Desconectado");
 		ui->labelEstadoActual->setStyleSheet("QLabel { font-weight: bold; color : black; }");
+
+		ui->label_PHumMaxValor->setText("Desconectado");
+		ui->label_PHumMaxValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
+
+		ui->label_PHumMinValor->setText("Desconectado");
+		ui->label_PHumMinValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
+
+		ui->label_PTiemRiegoValor->setText("Desconectado");
+		ui->label_PTiemRiegoValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
+
+		ui->label_PHoraRiegoValor->setText("Desconectado");
+		ui->label_PHoraRiegoValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
 
 		ui->lcdHumedad->setProperty("value", -1);
 		ui->lcdTemperatura->setProperty("value", -1);
@@ -433,6 +454,8 @@ void MainWindow::enviarRTC()
 	QTime   time_aux = QTime::currentTime();
 	QString  time_text_aux = time_aux.toString("hhmmss");
 	puerto.EnviarComando("R" + time_text_aux);
+	ui->listEnviado->addItem("Se envio hora a las " + ui->Hora->text() + "hs.");
+	ui->listEnviado->setCurrentRow(ui->listEnviado->count()-1);
 }
 
 /**
@@ -606,6 +629,9 @@ void MainWindow::on_pushButtonEnviarConfiguracion_clicked()
 			enviarConfig+=ui->timeEditHoraRiego->text();
 			enviarConfig=("C"+enviarConfig);
 			puerto.EnviarComando(enviarConfig);
+
+			ui->listEnviado->addItem("Se configuro el sistema a las " + ui->Hora->text() + "hs.");
+			ui->listEnviado->setCurrentRow(ui->listEnviado->count()-1);
 		}
 		else
 		{
@@ -628,4 +654,23 @@ void MainWindow::on_button_EnviarHora_clicked()
 		enviarRTC();
 	else
 		NoConectadoError();
+}
+
+void MainWindow::CargarParametros( QString parametros )
+{
+	m_HumedadMinima = (parametros[2].digitValue())*10 + (parametros[3].digitValue());
+	ui->label_PHumMinValor->setNum( m_HumedadMinima );
+	ui->label_PHumMinValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
+
+	m_HumedadMaxima = (parametros[4].digitValue())*10 + (parametros[5].digitValue());
+	ui->label_PHumMaxValor->setNum( m_HumedadMaxima );
+	ui->label_PHumMaxValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
+
+	m_TiempoRiego.setHMS( (parametros[6].digitValue())*10 + parametros[7].digitValue() , (parametros[8].digitValue())*10 + parametros[9].digitValue() , 0, 0);
+	ui->label_PTiemRiegoValor->setText( m_TiempoRiego.toString("HH:mm"));
+	ui->label_PTiemRiegoValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
+
+	m_HoraAlarma.setHMS( (parametros[10].digitValue())*10 + parametros[11].digitValue() , (parametros[12].digitValue())*10 + parametros[13].digitValue() , 0, 0);
+	ui->label_PHoraRiegoValor->setText( m_TiempoRiego.toString("HH:mm"));
+	ui->label_PHoraRiegoValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
 }

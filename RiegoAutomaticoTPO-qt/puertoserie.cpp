@@ -38,7 +38,7 @@ void PuertoSerie::onDatosRecibidos()
 void PuertoSerie::Parseo()
 {
 	QString comando="";
-	QString depurado = "ATMCOIERWLliohHt#$0123456789";
+	QString depurado = "ATMCcOIERWLlRiohHt#$0123456789";
 
 	for (int i = 0; i < m_datos_recibidos.count(); i++)
 	{

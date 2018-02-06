@@ -17,23 +17,24 @@
 #include <QDateTime>
 #include "puertoserie.h"
 
-#define DEFAULT					'5'
-#define MANUAL					'1'
+#define DEFAULT				'5'
+#define MANUAL				'1'
 #define TEMPORIZADO			'2'
 #define AUTOMATICO			'3'
 #define TEMPERATURA			't'
-#define HUMEDAD					'h'
-#define RECIBIDO				'W'
-#define SENSOR2					'Y'
-#define SENSOR3					'Z'
-#define RTC							'C'
+#define HUMEDAD				'h'
+#define RECIBIDO			'W'
+#define SENSOR2				'Y'
+#define SENSOR3				'Z'
+#define RTC					'R'
 #define MODOMANUAL			'M'
-#define MODOAUTOMATICO	'A'
-#define MODOTEMPORIZADO	'T'
+#define MODOAUTOMATICO		'A'
+#define MODOTEMPORIZADO		'T'
 #define CONFIGURACION		'C'
-#define BOTONOK					'O'
+#define BOTONOK				'O'
+#define	CONFIG_PARAMETROS	'c'
 
-#define MENSAJE_LLUVIA_ON		'L'
+#define MENSAJE_LLUVIA_ON	'L'
 #define	MENSAJE_LLUVIA_OFF	'l'
 
 #define LLUVIA_ON   100
@@ -57,7 +58,8 @@ public:
 
 private:
 	double Temperatura_y, Humedad_y, m_Lluvia;
-	QTime time;
+	int m_HumedadMaxima, m_HumedadMinima;
+	QTime time, m_TiempoRiego, m_HoraAlarma;
 	QTimer *timer, *timer_plot;
 	QString time_text;
 	QLabel *bytesStatus;
@@ -70,6 +72,7 @@ private:
 	void PrenderLluvia();
 	void ApagarLluvia();
 	void DesconectarLluvia();
+	void CargarParametros( QString );
 
 public:
 	void mostrarMarcador();

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>663</width>
+    <width>654</width>
     <height>499</height>
    </rect>
   </property>
@@ -105,7 +105,7 @@
         <property name="geometry">
          <rect>
           <x>200</x>
-          <y>100</y>
+          <y>10</y>
           <width>421</width>
           <height>191</height>
          </rect>
@@ -440,10 +440,10 @@
        <widget class="QGroupBox" name="groupBoxConfiguracion">
         <property name="geometry">
          <rect>
-          <x>200</x>
-          <y>10</y>
-          <width>421</width>
-          <height>91</height>
+          <x>320</x>
+          <y>290</y>
+          <width>301</width>
+          <height>131</height>
          </rect>
         </property>
         <property name="styleSheet">
@@ -462,26 +462,6 @@
           </rect>
          </property>
          <layout class="QGridLayout" name="gridConfig">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_HumMin">
-            <property name="text">
-             <string>Humedad Mínima</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="spinBoxHumMi"/>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_TiempoRiego">
-            <property name="text">
-             <string>Tiempo de Riego</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="spinBoxHumMa"/>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_HumMax">
             <property name="text">
@@ -510,13 +490,33 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="spinBoxHumMi"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_HumMin">
+            <property name="text">
+             <string>Humedad Mínima</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="spinBoxHumMa"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_TiempoRiego">
+            <property name="text">
+             <string>Tiempo de Riego</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
         <widget class="QPushButton" name="pushButtonEnviarConfiguracion">
          <property name="geometry">
           <rect>
-           <x>290</x>
-           <y>30</y>
+           <x>90</x>
+           <y>90</y>
            <width>121</width>
            <height>31</height>
           </rect>
@@ -625,6 +625,102 @@
              </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="groupBox_Parametros">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>210</y>
+          <width>421</width>
+          <height>81</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Parametros configurados</string>
+        </property>
+        <widget class="QWidget" name="gridLayoutWidget_3">
+         <property name="geometry">
+          <rect>
+           <x>19</x>
+           <y>20</y>
+           <width>381</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_PHumMax">
+            <property name="text">
+             <string>Humedad máxima:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLabel" name="label_PTiemRiegoValor">
+            <property name="text">
+             <string>NA</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_PHumMaxValor">
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string>NA</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_PHumMin">
+            <property name="text">
+             <string>Humedad mínima:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label_PHumMinValor">
+            <property name="text">
+             <string>NA</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_PTiemRiego">
+            <property name="text">
+             <string>Tiempo de riego:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="label_PHoraRiego">
+            <property name="text">
+             <string>Hora de riego:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QLabel" name="label_PHoraRiegoValor">
+            <property name="text">
+             <string>NA</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
