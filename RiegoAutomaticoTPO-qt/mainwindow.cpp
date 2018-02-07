@@ -130,7 +130,7 @@ void MainWindow::ProcesarComando(QString comando)
 		case 'o':
 			ui->labelEstadoActual->setText("Apagado");
 			ui->labelEstadoActual->setStyleSheet("QLabel { font-weight: bold; color : red; }");
-
+			m_Valvula = VALVULA_OFF;
 			ui->listRecibido->addItem( QString::fromUtf8("Se apago el riego a las ") + time_text + "hs." );
 			//ui->listRecibido->setCurrentRow(ui->listRecibido->count()-1);
 			break;
@@ -138,7 +138,7 @@ void MainWindow::ProcesarComando(QString comando)
 		case 'i':
 			ui->labelEstadoActual->setText("Prendido");
 			ui->labelEstadoActual->setStyleSheet("QLabel { font-weight: bold; color : green; }");
-
+			m_Valvula = VALVULA_ON;
 			ui->listRecibido->addItem( QString::fromUtf8("Se encendio el riego a las ") + time_text + "hs." );
 			break;
 
@@ -343,7 +343,7 @@ void MainWindow::realtimePlot( void )
 
 	ui->customPlot->graph(0)->addData(time_dbl, Temperatura_y );
 	ui->customPlot->graph(1)->addData(time_dbl, Humedad_y );
-	//ui->customPlot->graph(2)->addData(time_dbl, m_Valvula );
+	ui->customPlot->graph(2)->addData(time_dbl, m_Valvula );
 	ui->customPlot->graph(3)->addData(time_dbl, m_Lluvia );
 
 	ui->customPlot->xAxis->setRange(time_dbl, 8, Qt::AlignRight);

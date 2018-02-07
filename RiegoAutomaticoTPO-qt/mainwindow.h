@@ -37,6 +37,8 @@
 #define MENSAJE_LLUVIA_ON	'L'
 #define	MENSAJE_LLUVIA_OFF	'l'
 
+#define VALVULA_ON	100
+#define	VALVULA_OFF	-1
 #define LLUVIA_ON   100
 #define LLUVIA_OFF  -1
 
@@ -57,7 +59,7 @@ public:
     ~MainWindow();
 
 private:
-	double Temperatura_y, Humedad_y, m_Lluvia;
+	double Temperatura_y, Humedad_y, m_Lluvia,m_Valvula;
 	int m_HumedadMaxima, m_HumedadMinima;
 	QTime time, m_TiempoRiego, m_HoraAlarma;
 	QTimer *timer, *timer_plot;
