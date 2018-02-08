@@ -95,7 +95,7 @@ void MainWindow::ProcesarComando(QString comando)
 	{
 		case TEMPERATURA:
 			Temperatura_y = comando.mid(2,-1).toFloat()/10;
-			ui->lcdTemperatura->setProperty("value", Temperatura_y);
+			ui->lcdTemperatura->display( QString::number( Temperatura_y, 'f', 1 ) );
 			break;
 
 		case HUMEDAD:
@@ -213,8 +213,8 @@ void MainWindow::ActualizarEstadoConexion()
 		ui->label_PHoraRiegoValor->setText("Desconectado");
 		ui->label_PHoraRiegoValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
 
-		ui->lcdHumedad->setProperty("value", -1);
-		ui->lcdTemperatura->setProperty("value", -1);
+		ui->lcdHumedad->display(QString("Desc"));
+		ui->lcdTemperatura->display(QString("Desc"));
 
 		//Detengo el timer para graficar en tiempo real
 		if(timer_plot!= NULL)
@@ -420,7 +420,6 @@ void MainWindow::mostrarMarcador()
 	ui->lcdHumedad->setDigitCount(4);
 	ui->lcdHumedad->setMode(QLCDNumber::Dec);
 	ui->lcdHumedad->setSegmentStyle(QLCDNumber::Flat);
-	ui->lcdHumedad->setProperty("value", QVariant(24.3));
 
 	ui->lcdTemperatura->setStyleSheet("color: lightgreen; background-color: black; border: 2px solid lightgreen;");
 	ui->lcdTemperatura->setFrameShape(QFrame::Box);
@@ -430,7 +429,6 @@ void MainWindow::mostrarMarcador()
 	ui->lcdTemperatura->setDigitCount(4);
 	ui->lcdTemperatura->setMode(QLCDNumber::Dec);
 	ui->lcdTemperatura->setSegmentStyle(QLCDNumber::Flat);
-	ui->lcdTemperatura->setProperty("value", QVariant(24.3));
 }
 
 /**

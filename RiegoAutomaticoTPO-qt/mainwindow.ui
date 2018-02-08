@@ -268,6 +268,9 @@
           <property name="smallDecimalPoint">
            <bool>false</bool>
           </property>
+          <property name="segmentStyle">
+           <enum>QLCDNumber::Filled</enum>
+          </property>
           <property name="intValue" stdset="0">
            <number>-1</number>
           </property>
