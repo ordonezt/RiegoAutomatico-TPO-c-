@@ -668,7 +668,16 @@ void MainWindow::CargarParametros( QString parametros )
 	ui->label_PTiemRiegoValor->setText( m_TiempoRiego.toString("HH:mm"));
 	ui->label_PTiemRiegoValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
 
-	m_HoraAlarma.setHMS( (parametros[10].digitValue())*10 + parametros[11].digitValue() , (parametros[12].digitValue())*10 + parametros[13].digitValue() , 0, 0);
-	ui->label_PHoraRiegoValor->setText( m_TiempoRiego.toString("HH:mm"));
-	ui->label_PHoraRiegoValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
+	if(parametros[10].digitValue() == 8)
+	{
+		ui->label_PHoraRiegoValor->setText(QString::fromUtf8("Apagada"));
+		ui->label_PHoraRiegoValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
+	}
+	else
+	{
+		m_HoraAlarma.setHMS( (parametros[10].digitValue())*10 + parametros[11].digitValue() , (parametros[12].digitValue())*10 + parametros[13].digitValue() , 0, 0);
+		ui->label_PHoraRiegoValor->setText( m_HoraAlarma.toString("HH:mm"));
+		ui->label_PHoraRiegoValor->setStyleSheet("QLabel { font-weight: bold; color : black; }");
+	}
+
 }
